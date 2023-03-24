@@ -1,35 +1,48 @@
-#!/usr/bin/python3
+#!/bin/bash
 
-import sys
-import subprocess
+check_factor()
+{
+	if [ $# -ne 3 ];
+        then
+                args=("$@")
+                i=0
+                q=1
+                for a in ${args[*]};
+                do
+                        if [ $i -gt 1 ];
+                        then
+                                q=$(echo $a*$q | bc)
+                        fi
+                        i=$((i + 1))
+                done
+        else
+                q=$3
+        fi
 
-def check_factor(*args):
-    if len(args) != 3:
-        i = 0
-        q = 1
-        for a in args:
-            if i > 1:
-                q *= a
-            i += 1
-    else:
-        q = args[2]
-    
-    p = args[1]
-    num = str(args[0]).replace(':', '=')
+        p=$2
+        num=$(echo "$1" | tr ':' '=')
 
-    factors = 1 if q > p else 0
-    if factors == 1:
-        numcp = p
-        p = q
-        q = numcp
-    
-    print(num + str(p) + "*" + str(q))
+        factors=$(echo "if($q > $p) 1 else 0" | bc)
+	        if ((factors == 1)); then
+		        numcp=$p
+		        p=$q
+		        q=$numcp
+                fi
 
-if len(sys.argv) != 2:
-    print("Usage: factors <file>")
-    sys.exit(1)
-else:
-    with open(sys.argv[1], 'r') as f:
-        for line in f:
-            factors = subprocess.check_output(["factor", line.strip()])
-            check_factor(*list(map(int, factors.decode().split()[1:])))
+        echo "$num$p*$q"
+}
+
+if [ $# -ne 1 ]
+then
+        echo 'Usage: factors <file>'
+        exit 1
+else
+
+        while read i
+        do
+
+                factors=$(factor "$i")
+                check_factor $factors
+
+        done < "$1"
+fi
