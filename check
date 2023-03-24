@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Custom factorization function
+function factor {
+    # Try to factor using factor command
+    result=$(factor $1)
+
+    # If factor command failed, try to factor using trial division algorithm
+    if [[ "$result" == "$1: $1" ]]; then
+        # Trial division algorithm
+        i=2
+        while (( i*i <= $1 )); do
+            if (( $1 % i == 0 )); then
+                echo -n "$i*"
+                factor $(( $1 / i ))
+                return
+            fi
+            (( i++ ))
+        done
+        echo -n "$1"
+    else
+        # Remove the number and colon from the beginning of the factor command output
+        result=${result#*: }
+
+        # Check if the result is already in the form p*q
+        if [[ "$result" =~ .*x.* ]]; then
+            echo -n "$result"
+        else
+            # Split the factors by spaces and sort them
+            factors=($(echo $result | tr ' ' '\n' | sort -n))
+
+            # Combine the two smallest factors into p*q format
+            echo -n "${factors[0]}*${factors[1]}"
+        fi
+    fi
+}
+
+# Main function
+function main {
+    # Read the input file line by line
+    while read line; do
+        # Factorize the number and print the result in the required format
+        echo -n "$line="
+        factor $line
+        echo ""
+    done < "$1"
+}
+
+# Call the main function with the input file as argument
+main $1
