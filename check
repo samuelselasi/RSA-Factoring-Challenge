@@ -1,50 +1,48 @@
 #!/bin/bash
 
-# Custom factorization function
-function factor {
-    # Try to factor using factor command
-    result=$(factor $1)
-
-    # If factor command failed, try to factor using trial division algorithm
-    if [[ "$result" == "$1: $1" ]]; then
-        # Trial division algorithm
-        i=2
-        while (( i*i <= $1 )); do
-            if (( $1 % i == 0 )); then
-                echo -n "$i*"
-                factor $(( $1 / i ))
-                return
-            fi
-            (( i++ ))
-        done
-        echo -n "$1"
-    else
-        # Remove the number and colon from the beginning of the factor command output
-        result=${result#*: }
-
-        # Check if the result is already in the form p*q
-        if [[ "$result" =~ .*x.* ]]; then
-            echo -n "$result"
+check_factor()
+{
+	if [ $# -ne 3 ];
+        then
+                args=("$@")
+                i=0
+                q=1
+                for a in ${args[*]};
+                do
+                        if [ $i -gt 1 ];
+                        then
+                                q=$(echo $a*$q | bc)
+                        fi
+                        i=$((i + 1))
+                done
         else
-            # Split the factors by spaces and sort them
-            factors=($(echo $result | tr ' ' '\n' | sort -n))
-
-            # Combine the two smallest factors into p*q format
-            echo -n "${factors[0]}*${factors[1]}"
+                q=$3
         fi
-    fi
+
+        p=$2
+        num=$(echo "$1" | tr ':' '=')
+
+        factors=$(echo "if($q > $p) 1 else 0" | bc)
+	        if ((factors == 1)); then
+		        numcp=$p
+		        p=$q
+		        q=$numcp
+                fi
+
+        echo "$num$p*$q"
 }
 
-# Main function
-function main {
-    # Read the input file line by line
-    while read line; do
-        # Factorize the number and print the result in the required format
-        echo -n "$line="
-        factor $line
-        echo ""
-    done < "$1"
-}
+if [ $# -ne 1 ]
+then
+        echo 'Usage: factors <file>'
+        exit 1
+else
 
-# Call the main function with the input file as argument
-main $1
+        while read i
+        do
+
+                factors=$(factor "$i")
+                check_factor $factors
+
+        done < "$1"
+fi
