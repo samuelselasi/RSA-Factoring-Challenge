@@ -1,36 +1,35 @@
-#!/usr/bin/env bash
-# is a factors challenge
+#!/bin/bash
 
 check_factor()
 {
 	if [ $# -ne 3 ];
         then
                 args=("$@")
-                count=0
-                num2=1
+                i=0
+                q=1
                 for a in ${args[*]};
                 do
-                        if [ $count -gt 1 ];
+                        if [ $i -gt 1 ];
                         then
-                                num2=$(echo $a*$num2 | bc)
+                                q=$(echo $a*$q | bc)
                         fi
-                        count=$((count + 1))
+                        i=$((i + 1))
                 done
         else
-                num2=$3
+                q=$3
         fi
 
-        num1=$2
+        p=$2
         num=$(echo "$1" | tr ':' '=')
 
-        result=$(echo "if($num2 > $num1) 1 else 0" | bc)
-	        if ((result == 1)); then
-		        numcp=$num1
-		        num1=$num2
-		        num2=$numcp
+        factors=$(echo "if($q > $p) 1 else 0" | bc)
+	        if ((factors == 1)); then
+		        numcp=$p
+		        p=$q
+		        q=$numcp
                 fi
 
-        echo "$num$num1*$num2"
+        echo "$num$p*$q"
 }
 
 if [ $# -ne 1 ]
@@ -42,8 +41,8 @@ else
         while read i
         do
 
-                result=$(factor "$i")
-                check_factor $result
+                factors=$(factor "$i")
+                check_factor $factors
 
         done < "$1"
 fi
