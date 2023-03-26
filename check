@@ -1,48 +1,42 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-check_factor()
-{
-	if [ $# -ne 3 ];
-        then
-                args=("$@")
-                i=0
-                q=1
-                for a in ${args[*]};
-                do
-                        if [ $i -gt 1 ];
-                        then
-                                q=$(echo $a*$q | bc)
-                        fi
-                        i=$((i + 1))
-                done
-        else
-                q=$3
-        fi
+from sys import argv
+from math import gcd
 
-        p=$2
-        num=$(echo "$1" | tr ':' '=')
+def read_test_file(file_name):
+    with open(file_name, "r", encoding="utf-8") as file:
+        lines = file.readlines()
 
-        factors=$(echo "if($q > $p) 1 else 0" | bc)
-	        if ((factors == 1)); then
-		        numcp=$p
-		        p=$q
-		        q=$numcp
-                fi
+    number_to_factor = []
 
-        echo "$num$p*$q"
-}
+    for line in lines:
+        number_to_factor.append(int(line))
 
-if [ $# -ne 1 ]
-then
-        echo 'Usage: rsa <file>'
-        exit 1
-else
+    return number_to_factor[0]  # We assume there's only one number in the file
 
-        while read i
-        do
+def pollard_rho(n):
+    x = 2
+    y = 2
+    d = 1
 
-                factors=$(factor "$i")
-                check_factor $factors
+    while d == 1:
+        x = (x * x + 1) % n
+        y = (y * y + 1) % n
+        y = (y * y + 1) % n
+        d = gcd(abs(x - y), n)
 
-        done < "$1"
-fi
+    if d == n:
+        return None
+    else:
+        return d
+
+def find_numbers(n):
+    p = pollard_rho(n)
+    q = n // p
+
+    print("{}={}*{}".format(n, p, q))
+
+if len(argv) == 2:
+    n = read_test_file(argv[1])
+    find_numbers(n)
+
