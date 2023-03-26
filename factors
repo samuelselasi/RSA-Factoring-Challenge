@@ -1,24 +1,38 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-check_factor() {
-    if [[ $# -ne 2 ]]; then
+check_factor()
+{
+    if [ $# -ne 2 ];
+    then
         echo "Error: expected 2 arguments, got $#"
         exit 1
     fi
-    p=$1
-    q=$2
-    echo "$p*$q"
+
+    num1=$1
+    num2=$2
+
+    if [ $num2 -gt $num1 ];
+    then
+        temp=$num1
+        num1=$num2
+        num2=$temp
+    fi
+
+    echo "$num1*$num2"
 }
 
-if [[ $# -ne 1 ]]; then
+if [ $# -ne 1 ]
+then
     echo 'Usage: factors <file>'
     exit 1
 fi
 
-while read i; do
-    factors=$(factor "$i")
+while read i
+do
+    factors=$(factor <<< "$i")
     arr=($factors)
     p=${arr[-2]}
     q=${arr[-1]}
-    check_factor "$p" "$q"
+    factorization=$(check_factor "$p" "$q")
+    echo "$i=$factorization"
 done < "$1"
