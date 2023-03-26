@@ -2,33 +2,23 @@
 
 check_factor() {
     if [[ $# -ne 2 ]]; then
-        args=("$@")
-        p=${args[0]}
-        q=${args[1]}
-    else
-        p=$1
-        q=$2
+        echo "Error: expected 2 arguments, got $#"
+        exit 1
     fi
-
-    if (( q > p )); then
-        numcp=$p
-        p=$q
-        q=$numcp
-    fi
-
+    p=$1
+    q=$2
     echo "$p*$q"
 }
 
 if [[ $# -ne 1 ]]; then
     echo 'Usage: factors <file>'
     exit 1
-else
-    while read i; do
-        factors=$(factor "$i")
-        arr=($factors)
-        p=${arr[-2]}
-        q=${arr[-1]}
-        check_factor "$p" "$q"
-    done < "$1"
 fi
 
+while read i; do
+    factors=$(factor "$i")
+    arr=($factors)
+    p=${arr[-2]}
+    q=${arr[-1]}
+    check_factor "$p" "$q"
+done < "$1"
