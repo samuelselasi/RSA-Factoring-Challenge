@@ -1,48 +1,34 @@
-#!/usr/bin/env bash
+#!/usr/bin/python3
 
-check_factor()
-{
-	if [ $# -ne 3 ];
-        then
-                args=("$@")
-                i=0
-                q=1
-                for a in ${args[*]};
-                do
-                        if [ $i -gt 1 ];
-                        then
-                                q=$(echo $a*$q | bc)
-                        fi
-                        i=$((i + 1))
-                done
-        else
-                q=$3
-        fi
+from sys import argv
+from math import sqrt
 
-        p=$2
-        num=$(echo "$1" | tr ':' '=')
+class factor_file:
+    def __init__(self, filename):
+        if filename is not None:
+            self.filename = filename
 
-        factors=$(echo "if($q > $p) 1 else 0" | bc)
-	        if ((factors == 1)); then
-		        numcp=$p
-		        p=$q
-		        q=$numcp
-                fi
+    def read_test_file(self):
+        with open(self.filename, encoding="utf-8") as file:
+            lines = file.readlines()
 
-        echo "$num$p*$q"
-}
+        number_to_factor = []
 
-if [ $# -ne 1 ]
-then
-        echo 'Usage: rsa <file>'
-        exit 1
-else
+        for line in lines:
+            number_to_factor.append(int(line))
 
-        while read i
-        do
+        return number_to_factor
 
-                factors=$(factor "$i")
-                check_factor $factors
+    def find_numbers(self, n):
+        for i in range(2, n):
+            if n == ((n // i) * i):
+                print("{}={}*{}".format(n, (n // i), i))
+                break
 
-        done < "$1"
-fi
+    def factors(self):
+        ls = self.read_test_file()
+        for n in ls:
+            self.find_numbers(n)
+
+for i in range(1, len(argv)):
+    factor_file(argv[i]).factors()
