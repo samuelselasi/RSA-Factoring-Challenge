@@ -3,25 +3,22 @@
 from sys import argv
 from math import sqrt
 
-def is_prime(n):
-    if n < 2:
-        return False
-    for i in range(2, int(sqrt(n))+1):
-        if n % i == 0:
-            return False
-    return True
+def read_test_file(file_name):
+    with open(file_name, "r", encoding="utf-8") as file:
+        number = int(file.readline().strip())
 
-def find_primes(n):
-    for i in range(2, int(sqrt(n))+1):
-        if n % i == 0:
-            if is_prime(i) and is_prime(n//i):
-                p, q = i, n//i
-                print("{}={}*{}".format(n, p, q))
-                return
+    return [number]
+
+def find_numbers(n):
+    for i in range(1, n):
+        if n == ((n // i) * i):
+            print("{}={}*{}".format(n, (n // i), i))
+            break
+
+def factors(ls):
+    for i in ls:
+        find_numbers(i)
 
 if len(argv) == 2:
-    file_name = argv[1]
-    with open(file_name, "r") as file:
-        n = int(file.readline())
-    find_primes(n)
+    factors(read_test_file(argv[1]))
 
