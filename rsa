@@ -26,7 +26,7 @@ def is_prime(n):
 
 def find_numbers(n):
     signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(3)
+    signal.alarm(2)
     try:
         for i in range(2, int(sqrt(n))+1):
             if n % i == 0 and is_prime(i) and is_prime(n // i):
