@@ -78,6 +78,8 @@ def find_numbers(n):
     """Function to find factors of current number"""
 
     factors = factorize(n)
+    # Reverse the order of factors
+    factors.reverse()
     result = '{}='.format(n)
     for factor in factors:
         result += '{}*'.format(factor)
