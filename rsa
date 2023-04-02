@@ -1,45 +1,64 @@
 #!/usr/bin/env python3
 
-from sys import argv
-from math import sqrt
-import signal
-
-class TimeoutException(Exception):
-    pass
-
-def timeout_handler(signum, frame):
-    raise TimeoutException("Timed out!")
+import sys
+import math
 
 def read_test_file(file_name):
+    """Function to read numbers from file: one on each line"""
+
     with open(file_name, "r", encoding="utf-8") as file:
-        number = int(file.readline().strip())
+        lines = file.readlines()
 
-    return [number]
+    number_to_factor = []
 
-def is_prime(n):
-    if n < 2:
-        return False
-    for i in range(2, int(sqrt(n))+1):
-        if n % i == 0:
-            return False
-    return True
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            number = int(line)
+            if number <= 1:
+                raise ValueError
+            number_to_factor.append(number)
+        except ValueError:
+            print("Invalid input: '{}' is not a natural number".format(line))
+
+    return number_to_factor
+
+def is_perfect_square(n):
+    """
+    Returns True if n is a perfect square, False otherwise.
+    """
+    # If the square of the integer square root of n is equal to n, then n is a perfect square
+    return math.isqrt(n) ** 2 == n
 
 def find_numbers(n):
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(2)
-    try:
-        for i in range(2, int(sqrt(n))+1):
-            if n % i == 0 and is_prime(i) and is_prime(n // i):
-                print("{}={}*{}".format(n, n // i, i))
-                break
+    """Function to find factors of current number"""
+
+    last_digit = n % 10
+    if last_digit == 0:
+        start_range = 2
+    elif last_digit % 2 == 0:
+        start_range = 2
+    elif last_digit == 5:
+        start_range = 5
+    elif last_digit == 9:
+        if n % 3 == 0:
+            start_range = 3
+        elif is_perfect_square(n):
+            start_range = math.isqrt(n)
         else:
-            print("{}=1*{}".format(n, n))
-    except TimeoutException:
+            start_range = 1
+    else:
+        start_range = last_digit
+    for i in range(start_range, int(math.sqrt(n)) + 1):
+        if n % i == 0:
+            print("{}={}*{}".format(n, n // i, i))
+            break
+    else:
         print("{}={}*1".format(n, n))
 
-def factors(ls):
-    for i in ls:
-        find_numbers(i)
+if len(sys.argv) == 2:
+    number = read_test_file(sys.argv[1])[0]
+    find_numbers(number)
 
-if len(argv) == 2:
-    factors(read_test_file(argv[1]))
