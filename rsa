@@ -2,20 +2,27 @@
 
 from sys import argv
 from math import sqrt, isqrt
+from random import randint
 
 
-def read_test_file(file_name):
-    """Function to read numbers from file: one on each line"""
+def read_test_input(input):
+    """Function to read integer from input (either a filename or a number)"""
 
-    with open(file_name, "r", encoding="utf-8") as file:
-        lines = file.readlines()
+    try:
+        # Try to read as file
+        with open(input, "r", encoding="utf-8") as file:
+            number = int(file.readline().strip())
+    except FileNotFoundError:
+        # Try to read as number
+        try:
+            number = int(input)
+        except ValueError:
+            print("Invalid input")
+            return None
 
-    number_to_factor = []
+    return number
 
-    for line in lines:
-        number_to_factor.append(int(line.strip()))
 
-    return number_to_factor
 def is_perfect_square(n):
     """
     Returns True if n is a perfect square, False otherwise.
@@ -23,32 +30,63 @@ def is_perfect_square(n):
     # If the square of the integer square root of n is equal to n, then n is a perfect square
     return isqrt(n) ** 2 == n
 
+
+def gcd(a, b):
+    """Function to calculate greatest common divisor of two integers"""
+    while b:
+        a, b = b, a % b
+    return a
+
+
+def pollard_rho(n):
+    """Pollard-Rho algorithm for factorizing integers"""
+    x = y = randint(1, n - 1)
+    c = randint(1, n - 1)
+    factor = 1
+    while factor == 1:
+        x = (x * x + c) % n
+        y = (y * y + c) % n
+        y = (y * y + c) % n
+        factor = gcd(abs(x - y), n)
+    return factor
+
+
+def factorize(n):
+    """Function to factorize integer using Pollard-Rho algorithm"""
+    if n == 1:
+        return []
+    if is_perfect_square(n):
+        return [int(isqrt(n)), int(isqrt(n))]
+    factor_list = []
+    while n > 1:
+        if is_perfect_square(n):
+            factor_list.append(int(isqrt(n)))
+            factor_list.append(int(isqrt(n)))
+            break
+        factor = pollard_rho(n)
+        if factor == n:
+            factor_list.append(n)
+            break
+        else:
+            factor_list.extend(factorize(factor))
+            n //= factor
+    factor_list.sort()
+    return factor_list
+
+
 def find_numbers(n):
     """Function to find factors of current number"""
 
-    last_digit = n % 10
-    if last_digit == 0:
-        start_range = 2
-    elif last_digit % 2 == 0:
-        start_range = 2
-    elif last_digit == 5:
-        start_range = 5
-    elif last_digit == 9:
-        if n % 3 == 0:
-            start_range = 3
-        elif is_perfect_square(n):
-            start_range = isqrt(n)
-        else:
-            start_range = 1
-    else:
-        start_range = last_digit
-    for i in range(start_range, int(sqrt(n)) + 1):
-        if n % i == 0:
-            print("{}={}*{}".format(n, n // i, i))
-            break
-    else:
-        print("{}={}*1".format(n, n))
+    factors = factorize(n)
+    result = '{}='.format(n)
+    for factor in factors:
+        result += '{}*'.format(factor)
+    result = result[:-1] # Remove last '*'
+    print(result)
+
 
 if len(argv) == 2:
-    number = read_test_file(argv[1])[0]
-    find_numbers(number)
+    number = read_test_input(argv[1])
+    if number is not None:
+        find_numbers(number)
+
