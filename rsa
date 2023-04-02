@@ -1,94 +1,35 @@
 #!/usr/bin/env python3
 
 from sys import argv
-from math import sqrt, isqrt
-from random import randint
+from math import sqrt
 
 
-def read_test_input(input):
-    """Function to read integer from input (either a filename or a number)"""
+def read_test_file(file_name):
+    """Function to read numbers from file: one on each line"""
 
-    try:
-        # Try to read as file
-        with open(input, "r", encoding="utf-8") as file:
-            number = int(file.readline().strip())
-    except FileNotFoundError:
-        # Try to read as number
-        try:
-            number = int(input)
-        except ValueError:
-            print("Invalid input")
-            return None
+    with open(file_name, "r", encoding="utf-8") as file:
+        lines = file.readlines()
 
-    return number
+    number_to_factor = []
 
+    for line in lines:
+        number_to_factor.append(int(line.strip()))
 
-def is_perfect_square(n):
-    """
-    Returns True if n is a perfect square, False otherwise.
-    """
-    # If the square of the integer square root of n is equal to n, then n is a perfect square
-    return isqrt(n) ** 2 == n
-
-
-def gcd(a, b):
-    """Function to calculate greatest common divisor of two integers"""
-    while b:
-        a, b = b, a % b
-    return a
-
-
-def pollard_rho(n):
-    """Pollard-Rho algorithm for factorizing integers"""
-    x = y = randint(1, n - 1)
-    c = randint(1, n - 1)
-    factor = 1
-    while factor == 1:
-        x = (x * x + c) % n
-        y = (y * y + c) % n
-        y = (y * y + c) % n
-        factor = gcd(abs(x - y), n)
-    return factor
-
-
-def factorize(n):
-    """Function to factorize integer using Pollard-Rho algorithm"""
-    if n == 1:
-        return []
-    if is_perfect_square(n):
-        return [int(isqrt(n)), int(isqrt(n))]
-    factor_list = []
-    while n > 1:
-        if is_perfect_square(n):
-            factor_list.append(int(isqrt(n)))
-            factor_list.append(int(isqrt(n)))
-            break
-        factor = pollard_rho(n)
-        if factor == n:
-            factor_list.append(n)
-            break
-        else:
-            factor_list.extend(factorize(factor))
-            n //= factor
-    factor_list.sort()
-    return factor_list
-
+    return number_to_factor
 
 def find_numbers(n):
     """Function to find factors of current number"""
 
-    factors = factorize(n)
-    # Reverse the order of factors
-    factors.reverse()
-    result = '{}='.format(n)
-    for factor in factors:
-        result += '{}*'.format(factor)
-    result = result[:-1] # Remove last '*'
-    print(result)
+    for i in range(1, n):
+        if n == ((n // i) * i):
+            print("{}={}*{}".format(n, (n // i), i))
+            break
 
+def factors(ls):
+    """Function to iterate between numbers in file"""
+
+    for i in ls:
+        find_numbers(i)
 
 if len(argv) == 2:
-    number = read_test_input(argv[1])
-    if number is not None:
-        find_numbers(number)
-
+    factors(read_test_file(argv[1]))
