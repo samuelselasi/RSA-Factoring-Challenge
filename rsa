@@ -22,7 +22,7 @@ def find_numbers(n):
 
     for i in range(1, n):
         if n == ((n // i) * i):
-            print("{}={}*{}".format(n, (n // i), i))
+            print("{} = {} × {}".format(n, (n // i), i))
             break
 
 def factors(ls):
