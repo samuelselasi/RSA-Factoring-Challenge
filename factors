@@ -12,10 +12,16 @@ def read_test_file(file_name):
     number_to_factor = []
 
     for line in lines:
+        line = line.strip()
+        if not line:
+            continue
         try:
-            number_to_factor.append(int(line))
+            number = int(line)
+            if number <= 1:
+                raise ValueError
+            number_to_factor.append(number)
         except ValueError:
-            print("Invalid input: '{}' is not a natural number".format(line.strip()))
+            print("Invalid input: '{}' is not a natural number".format(line))
 
     return number_to_factor
 
