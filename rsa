@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 from sys import argv
-from math import sqrt
+from math import isqrt
+from multiprocessing import Pool
+import random
 
 
 def read_test_file(file_name):
@@ -17,19 +19,90 @@ def read_test_file(file_name):
 
     return number_to_factor
 
+
 def find_numbers(n):
     """Function to find factors of current number"""
 
-    for i in range(1, n):
-        if n == ((n // i) * i):
-            print("{}={}*{}".format(n, (n // i), i))
-            break
+    # Check if n is even
+    if n % 2 == 0:
+        factor1 = 2
+        factor2 = n // 2
+
+        # Check if both factors are prime
+        if is_prime(factor1) and is_prime(factor2):
+            print("{}={}*{}".format(n, factor1, factor2))
+            return
+
+    # Find factors using trial division
+    for i in range(3, isqrt(n)+1, 2):
+        if n % i == 0:
+            factor1 = i
+            factor2 = n // i
+
+            # Check if both factors are prime
+            if is_prime(factor1) and is_prime(factor2):
+                print("{}={}*{}".format(n, factor1, factor2))
+                return
+
+    # If no prime factorization was found, print error message
+    print("Error: could not factor {} into prime factors".format(n))
+
+
+def is_prime(n):
+    """Function to check if number is prime"""
+
+    if n <= 1:
+        return False
+    elif n == 2:
+        return True
+    elif n % 2 == 0:
+        return False
+    else:
+        # Use Miller-Rabin test to check if n is prime
+        return miller_rabin(n)
+
+
+def miller_rabin(n, k=50):
+    """Miller-Rabin primality test"""
+
+    if n == 2 or n == 3:
+        return True
+    if n <= 1 or n % 2 == 0:
+        return False
+
+    # Write n-1 as 2^r * d
+    d = n - 1
+    r = 0
+    while d % 2 == 0:
+        d //= 2
+        r += 1
+
+    # Test k times
+    for _ in range(k):
+        a = random.randint(2, n-2)
+        x = pow(a, d, n)
+        if x == 1 or x == n-1:
+            continue
+        for _ in range(r-1):
+            x = pow(x, 2, n)
+            if x == n-1:
+                break
+        else:
+            return False
+
+    return True
+
 
 def factors(ls):
     """Function to iterate between numbers in file"""
 
-    for i in ls:
-        find_numbers(i)
+    with Pool() as pool:
+        pool.map(find_numbers, ls)
 
-if len(argv) == 2:
-    factors(read_test_file(argv[1]))
+
+if __name__ == '__main__':
+    if len(argv) == 2:
+        factors(read_test_file(argv[1]))
+    else:
+        print("Usage: python3 {} <filename>".format(argv[0]))
+
