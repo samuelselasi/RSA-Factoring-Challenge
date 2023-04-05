@@ -16,6 +16,7 @@ def read_test_file(file_name):
         # Check if the number has 100 or more digits
         n = int(line.strip())
         if n >= 10**99:
+            print(100)
             exit(100)
 
         number_to_factor.append(n)
