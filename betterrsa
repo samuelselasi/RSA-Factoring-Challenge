@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
 from sys import argv, exit
-from math import gcd
-from random import randint
-from time import time
+from math import sqrt
 
 
 def read_test_file(file_name):
@@ -18,10 +16,10 @@ def read_test_file(file_name):
         # Check if the number has 100 or more digits
         n = int(line.strip())
         if n >= 10**99:
-            factors = pollard_rho(n)
-            print("{}={}*{}".format(n, factors[0], factors[1]))
-        else:
-            find_numbers(n)
+            print(100)
+            exit(100)
+
+        number_to_factor.append(n)
 
     return number_to_factor
 
@@ -30,35 +28,9 @@ def find_numbers(n):
     """Function to find factors of current number"""
 
     for i in range(1, n):
-        if n % i == 0:
+        if n == ((n // i) * i):
             print("{}={}*{}".format(n, (n // i), i))
             break
-
-
-def pollard_rho(n):
-    """Function to factor a number using the Pollard Rho algorithm"""
-
-    start_time = time()
-
-    x = randint(0, n - 1)
-    y = x
-    c = randint(1, n - 1)
-    d = 1
-
-    while d == 1:
-
-        if time() - start_time > 4:
-            exit(100)
-
-        x = (x*x + c) % n
-        y = (y*y + c) % n
-        y = (y*y + c) % n
-        d = gcd(abs(x - y), n)
-
-    if d == n:
-        return pollard_rho(n)
-
-    return (d, n // d)
 
 
 def factors(ls):
